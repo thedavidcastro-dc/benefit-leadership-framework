@@ -123,7 +123,7 @@ export function LeadersCarousel() {
               Embodied Examples
             </span>
             <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground text-balance">
-              Leaders of the Framework
+              Leaders Who Embody the Framework
             </h2>
           </div>
           <div className="flex gap-3">
