@@ -24,7 +24,7 @@ export function Footer() {
           </div>
 
           <p className="text-muted-foreground text-sm text-center">
-            Â© {new Date().getFullYear()} The BENEFIT Leadership Ethics Framework. <a href="https://allianceofleadershipfellows.org" target="_blank" rel="noopener noreferrer">Alliance of Leadership Fellows</a>. All rights reserved.
+            Copyright {new Date().getFullYear()}. The BENEFIT Leadership Ethics Framework. <a href="https://allianceofleadershipfellows.org" target="_blank" rel="noopener noreferrer">Alliance of Leadership Fellows</a>. All rights reserved.
           </p>
 
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
