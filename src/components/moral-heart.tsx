@@ -42,7 +42,7 @@ export function MoralHeart() {
               The Moral Heart
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-              At the core of the BENEFIT framework lies the Moral Heartâthe integration of Benevolence, Empathy, and Nonviolence. These three values form the ethical foundation upon which all other values build, creating a holistic approach to transformational leadership.
+              At the core of the BENEFIT framework lies the Moral Heart: the integration of Benevolence, Empathy, and Nonviolence. These three values form the ethical foundation upon which all other values build, creating a holistic approach to transformational leadership.
             </p>
             <div className="space-y-4">
               {[
