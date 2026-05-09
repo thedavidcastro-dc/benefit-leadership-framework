@@ -83,8 +83,8 @@ export function HeroSection() {
             className="px-8 py-6 text-base font-medium bg-amber-600 hover:bg-amber-700 text-white border-0"
             asChild
           >
-            <a href="https://www.eventbrite.com/e/benefit-ethical-framework-event-tickets-1986899932183?aff=oddtdtcreator&mc_cid=d24df08268&mc_eid=UNIQID" target="_blank" rel="noopener noreferrer">
-              Join our Symposium on April 23
+            <a href="https://www.youtube.com/watch?v=gqzWk5ngnxs" target="_blank" rel="noopener noreferrer">
+              Watch our April 23 Symposium
             </a>
           </Button>
         </motion.div>
