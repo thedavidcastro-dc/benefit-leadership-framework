@@ -87,6 +87,15 @@ export function HeroSection() {
               Watch our April 23 Symposium
             </a>
           </Button>
+          <Button
+            size="lg"
+            className="px-8 py-6 text-base font-medium bg-emerald-600 hover:bg-emerald-700 text-white border-0"
+            asChild
+          >
+            <a href="https://www.eventbrite.com/e/benefit-ethical-framework-event-equity-flourishing-tickets-1989821853729?aff=oddtdtcreator&keep_tld=true&mc_cid=9040d43534&mc_eid=UNIQID" target="_blank" rel="noopener noreferrer">
+              Register for the June 11 Symposium on Equity and Flourishing
+            </a>
+          </Button>
         </motion.div>
 
         {/* Scroll indicator */}
