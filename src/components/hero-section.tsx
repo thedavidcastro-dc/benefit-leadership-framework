@@ -92,8 +92,8 @@ export function HeroSection() {
             className="px-8 py-6 text-base font-medium bg-emerald-600 hover:bg-emerald-700 text-white border-0"
             asChild
           >
-            <a href="https://www.eventbrite.com/e/benefit-ethical-framework-event-equity-flourishing-tickets-1991469090659?aff=oddtdtcreator" target="_blank" rel="noopener noreferrer">
-              Register for the June 11 Symposium on Equity and Flourishing
+            <a href="https://www.eventbrite.com/e/benefit-ethical-framework-event-integrity-transparency-tickets-1993030903082?aff=oddtdtcreator&keep_tld=true&mc_cid=753991a803&mc_eid=UNIQID" target="_blank" rel="noopener noreferrer">
+              Register for the July 9 Symposium on Integrity and Transparency
             </a>
           </Button>
         </motion.div>
