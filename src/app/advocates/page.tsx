@@ -10,6 +10,8 @@ const SB_URL = "https://bfispxhviyozcorimsdd.supabase.co"
 const SB_KEY = "sb_publishable_6mBI0e5ji9KNOinypYRLFQ_ThfWDMe8"
 const SESSION_KEY = "benefit_adv_session"
 
+const CSV_COLUMNS = ["first_name","last_name","tagline","city","state","country","postal_code","email","phone","bio","linkedin_url","substack_url","x_url","website_url","photo_url"]
+
 // ---------- helpers ----------
 function decodeJwt(t: string): any {
   try {
@@ -26,6 +28,45 @@ function colorFor(s: string) {
 }
 function fullName(a: any) { return `${esc(a.first_name)} ${esc(a.last_name)}`.trim() }
 function locationOf(a: any) { return [a.city, a.state, a.country].filter(Boolean).join(", ") }
+
+// Minimal RFC-4180-ish CSV parser (handles quotes, commas and newlines inside quotes)
+function parseCSV(text: string): any[] {
+  const rows: string[][] = []
+  let cur: string[] = []; let field = ""; let i = 0; let inQ = false
+  while (i < text.length) {
+    const c = text[i]
+    if (inQ) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i += 2; continue } inQ = false; i++; continue }
+      field += c; i++; continue
+    }
+    if (c === '"') { inQ = true; i++; continue }
+    if (c === ",") { cur.push(field); field = ""; i++; continue }
+    if (c === "\r") { i++; continue }
+    if (c === "\n") { cur.push(field); rows.push(cur); cur = []; field = ""; i++; continue }
+    field += c; i++
+  }
+  if (field.length || cur.length) { cur.push(field); rows.push(cur) }
+  if (!rows.length) return []
+  const header = rows[0].map((h) => h.trim().toLowerCase())
+  const out: any[] = []
+  for (let r = 1; r < rows.length; r++) {
+    const cells = rows[r]
+    if (cells.every((x) => (x || "").trim() === "")) continue
+    const obj: any = {}
+    header.forEach((h, idx) => { obj[h] = (cells[idx] == null ? "" : cells[idx]).trim() })
+    out.push(obj)
+  }
+  return out
+}
+function downloadTemplate() {
+  const header = CSV_COLUMNS.join(",")
+  const example = ["Jane","Doe","Ethics researcher","Boston","Massachusetts","United States","02108","jane@example.com","+1 555 0100","Short bio. Links like [my essay](https://example.com) work.","https://linkedin.com/in/jane","https://jane.substack.com","https://x.com/jane","https://jane.example.com","https://example.com/jane.jpg"]
+    .map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(",")
+  const csv = header + "\n" + example + "\n"
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a"); a.href = url; a.download = "advocate-import-template.csv"; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url)
+}
 
 // Turn [label](url) and bare URLs into links
 function Bio({ text }: { text: string }) {
@@ -84,7 +125,13 @@ export default function AdvocatesPage() {
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState("")
   const [filters, setFilters] = useState({ q: "", state: "", country: "" })
-  const [modal, setModal] = useState<any>(null)       // {type:'login'|'view'|'edit'|'delete', data?}
+  const [modal, setModal] = useState<any>(null)       // {type:'login'|'view'|'edit'|'delete'|'import', data?}
+
+  // CSV import state
+  const [importRows, setImportRows] = useState<any[]>([])
+  const [importErr, setImportErr] = useState("")
+  const [importResult, setImportResult] = useState<any>(null)
+  const [importing, setImporting] = useState(false)
 
   const token = useCallback(() => (session?.access_token || SB_KEY), [session])
 
@@ -247,6 +294,32 @@ export default function AdvocatesPage() {
     catch (e: any) { alert("Delete failed: " + e.message) }
   }
 
+  // ---------- CSV import ----------
+  const openImport = () => { setImportRows([]); setImportErr(""); setImportResult(null); setModal({ type: "import" }) }
+  const onCsvFile = (file: File) => {
+    setImportErr(""); setImportResult(null); setImportRows([])
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const parsed = parseCSV(String(reader.result || ""))
+        const cleaned = parsed.filter((r) => (r.first_name || "").trim() && (r.last_name || "").trim())
+        setImportRows(cleaned)
+        if (!cleaned.length) setImportErr("No valid rows found. Each row needs at least first_name and last_name.")
+        else if (cleaned.length < parsed.length) setImportErr(`${parsed.length - cleaned.length} row(s) were ignored for missing first/last name.`)
+      } catch (e: any) { setImportErr("Could not read that file. Make sure it is a .csv exported from the template.") }
+    }
+    reader.readAsText(file)
+  }
+  const runImport = async () => {
+    setImporting(true); setImportErr(""); setImportResult(null)
+    try {
+      const res = await api("rpc/advocate_bulk_upsert", { method: "POST", body: JSON.stringify({ rows: importRows }) })
+      setImportResult(res || {})
+      await refresh()
+    } catch (e: any) { setImportErr(e.message || "Import failed") }
+    setImporting(false)
+  }
+
   // ---------- UI ----------
   const btn = "rounded-lg px-3.5 py-2 text-sm font-medium border"
   const primary = `${btn} bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800`
@@ -270,6 +343,7 @@ export default function AdvocatesPage() {
             {session ? (
               <>
                 <span className="text-sm text-stone-500">Signed in{session.user?.email ? <> as <b className="text-stone-800">{session.user.email}</b></> : null} {isAdmin ? <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Admin</span> : <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Advocate</span>}</span>
+                {isAdmin ? <button className={ghost} onClick={openImport}>Bulk import (CSV)</button> : null}
                 {uid && rows.some((r) => r.user_id === uid) ? (
                   <button className={ghost} onClick={() => { const me = rows.find((r) => r.user_id === uid); if (me) openEdit(me.id) }}>Edit my profile</button>
                 ) : null}
@@ -360,6 +434,40 @@ export default function AdvocatesPage() {
                 <div className="flex justify-end gap-2 px-5 py-4 border-t border-stone-200">
                   <button className={ghost} onClick={() => setModal(null)}>Cancel</button>
                   <button className={primary} disabled={sending || !loginEmail.trim()} onClick={sendMagicLink}>{sending ? "Sending…" : "Send sign-in link"}</button>
+                </div>
+              </div>
+            ) : null}
+
+            {modal.type === "import" ? (
+              <div>
+                <div className="flex items-center justify-between px-5 py-4 border-b border-stone-200"><h2 className="font-serif text-xl">Bulk import advocates</h2><button className="text-stone-400 text-2xl leading-none px-2" onClick={() => setModal(null)}>×</button></div>
+                <div className="p-5">
+                  <p className="text-sm text-stone-500 mb-3">Upload a CSV to add or update advocate profiles. Matching is by <b>email</b>: an email that already exists is updated (blank cells are ignored, so they won't erase existing data), and new emails are added. Rows without an email are always added.</p>
+                  <button className={ghost} onClick={downloadTemplate}>Download CSV template</button>
+                  <div className="mt-4">
+                    <label className="text-xs text-stone-500 block mb-1">Choose your filled-in CSV</label>
+                    <input type="file" accept=".csv,text/csv" onChange={(e) => { const f = e.target.files && e.target.files[0]; if (f) onCsvFile(f) }} />
+                  </div>
+                  {importErr ? <p className="text-sm text-red-700 mt-3">{importErr}</p> : null}
+                  {importRows.length ? (
+                    <div className="mt-3">
+                      <p className="text-sm">Ready to import <b>{importRows.length}</b> row{importRows.length === 1 ? "" : "s"}.</p>
+                      <div className="mt-2 max-h-44 overflow-auto text-xs border border-stone-200 rounded-lg divide-y divide-stone-100">
+                        {importRows.slice(0, 50).map((r, i) => (
+                          <div key={i} className="px-3 py-1.5 flex justify-between gap-3">
+                            <span className="font-medium">{esc(r.first_name)} {esc(r.last_name)}</span>
+                            <span className="text-stone-500 truncate">{[r.email, locationOf(r)].filter(Boolean).join(" · ")}</span>
+                          </div>
+                        ))}
+                        {importRows.length > 50 ? <div className="px-3 py-1.5 text-stone-500">…and {importRows.length - 50} more</div> : null}
+                      </div>
+                    </div>
+                  ) : null}
+                  {importResult ? <p className="text-sm text-emerald-800 mt-3">Done — added {importResult.inserted || 0}, updated {importResult.updated || 0}, skipped {importResult.skipped || 0}.</p> : null}
+                </div>
+                <div className="flex justify-end gap-2 px-5 py-4 border-t border-stone-200">
+                  <button className={ghost} onClick={() => setModal(null)}>Close</button>
+                  <button className={primary} disabled={!importRows.length || importing} onClick={runImport}>{importing ? "Importing…" : `Import ${importRows.length || ""}`.trim()}</button>
                 </div>
               </div>
             ) : null}
