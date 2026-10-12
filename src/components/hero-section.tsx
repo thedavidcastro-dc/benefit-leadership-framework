@@ -1,20 +1,31 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { CompassIcon } from "@/components/compass-icon"
 
+const panels = [
+  { id: "gqzWk5ngnxs", date: "April 23, 2026", theme: "Benevolence, Equity & Nonviolence" },
+  { id: "gbggW5lLLgU", date: "June 11, 2026", theme: "Equity & Flourishing" },
+  { id: "tF9CN3VO_f4", date: "July 9, 2026", theme: "Integrity & Transparency" },
+]
+
 export function HeroSection() {
+  const [active, setActive] = useState(0)
+  const go = (dir: number) => setActive((i) => (i + dir + panels.length) % panels.length)
+  const panel = panels[active]
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-secondary via-background to-background" />
-      
+
       {/* Decorative elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      
+
       {/* Large animated compass in background */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
@@ -24,7 +35,7 @@ export function HeroSection() {
       >
         <CompassIcon size={400} className="text-accent/5" animate />
       </motion.div>
-      
+
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-24 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -62,40 +73,81 @@ export function HeroSection() {
           transition={{ duration: 0.7, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-medium"
             onClick={() => document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth' })}
           >
             Join the Community
             <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
-          <Button 
-            variant="outline" 
-            size="lg" 
+          <Button
+            variant="outline"
+            size="lg"
             className="px-8 py-6 text-base font-medium border-border hover:bg-secondary"
             onClick={() => document.getElementById('values')?.scrollIntoView({ behavior: 'smooth' })}
           >
             Explore the Values
           </Button>
-          <Button
-            size="lg"
-            className="px-8 py-6 text-base font-medium bg-amber-600 hover:bg-amber-700 text-white border-0"
-            asChild
-          >
-            <a href="https://www.youtube.com/watch?v=gqzWk5ngnxs" target="_blank" rel="noopener noreferrer">
-              Watch our April 23 Symposium
-            </a>
-          </Button>
-          <Button
-            size="lg"
-            className="px-8 py-6 text-base font-medium bg-emerald-600 hover:bg-emerald-700 text-white border-0"
-            asChild
-          >
-            <a href="https://www.eventbrite.com/e/benefit-ethical-framework-event-integrity-transparency-tickets-1993030903082?aff=oddtdtcreator&keep_tld=true&mc_cid=753991a803&mc_eid=UNIQID" target="_blank" rel="noopener noreferrer">
-              Register for the July 9 Symposium on Integrity and Transparency
-            </a>
-          </Button>
+        </motion.div>
+
+        {/* Panel discussion video carousel */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="mt-14 max-w-3xl mx-auto"
+        >
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-5">Watch our panel discussions</p>
+
+          <div className="relative">
+            <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-border bg-black">
+              <iframe
+                key={panel.id}
+                className="absolute inset-0 w-full h-full"
+                src={`https://www.youtube-nocookie.com/embed/${panel.id}?rel=0`}
+                title={`${panel.date} Panel Discussion — ${panel.theme}`}
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => go(-1)}
+              aria-label="Previous panel"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center text-foreground hover:text-emerald-700 hover:bg-background transition"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => go(1)}
+              aria-label="Next panel"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center text-foreground hover:text-emerald-700 hover:bg-background transition"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="mt-5">
+            <p className="font-serif text-xl md:text-2xl text-foreground">{panel.theme}</p>
+            <p className="text-sm text-muted-foreground mt-1">{panel.date} Panel Discussion</p>
+          </div>
+
+          <div className="flex justify-center items-center gap-2.5 mt-5">
+            {panels.map((p, i) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setActive(i)}
+                aria-label={`Show ${p.theme} panel`}
+                aria-current={i === active}
+                className={`h-2.5 rounded-full transition-all ${i === active ? "w-8 bg-emerald-600" : "w-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"}`}
+              />
+            ))}
+          </div>
         </motion.div>
 
         {/* Scroll indicator */}
