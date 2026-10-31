@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowRight, ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
 import { CompassIcon } from "@/components/compass-icon"
 
 const panels = [
@@ -89,6 +89,33 @@ export function HeroSection() {
           >
             Explore the Values
           </Button>
+        </motion.div>
+
+        {/* Featured: Social Innovations Journal special issue */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.35 }}
+          className="mt-12 max-w-2xl mx-auto"
+        >
+          <a
+            href="https://socialinnovationsjournal.com/index.php/sij"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-4 text-left rounded-2xl border border-accent/30 bg-accent/5 hover:bg-accent/10 transition-colors p-5 sm:p-6 shadow-sm"
+          >
+            <div className="shrink-0 w-12 h-12 rounded-xl bg-accent/15 flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-accent-foreground/70">Featured Publication</p>
+              <h3 className="font-serif text-lg md:text-xl text-foreground mt-0.5 text-balance">The BENEFIT Ethical Framework — Special Issue</h3>
+              <p className="text-sm text-muted-foreground mt-1">A special issue of the Social Innovations Journal exploring the framework in depth.</p>
+            </div>
+            <span className="shrink-0 hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent-foreground group-hover:translate-x-0.5 transition-transform">
+              Read it <ArrowRight className="w-4 h-4" />
+            </span>
+          </a>
         </motion.div>
 
         {/* Panel discussion video carousel */}
