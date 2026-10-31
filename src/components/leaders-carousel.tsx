@@ -18,7 +18,8 @@ const leaders = [
     name: "Nelson Mandela",
     title: "Champion of Reconciliation",
     highlight: "Reconciliation",
-    image: "/leaders/mandela.jpg",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Nelson%20Mandela%201994.jpg?width=800",
+    imagePos: "50% 38%",
     quote: "Education is the most powerful weapon which you can use to change the world.",
     bio: "Nelson Mandela exemplified the BENEFIT values through his lifelong commitment to justice, reconciliation, and human dignity. After 27 years of imprisonment, he emerged not with bitterness but with a vision of a united South Africa. His leadership demonstrated how benevolence and empathy can transform even the deepest wounds into pathways for healing and progress.",
     values: ["Benevolence", "Empathy", "Nonviolence"]
@@ -27,7 +28,8 @@ const leaders = [
     name: "Harriet Tubman",
     title: "Conductor of Freedom",
     highlight: "Courageous Liberation",
-    image: "/leaders/tubman.jpg",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Harriet%20Tubman%20c1868-69%20(cropped%202).jpg?width=800",
+    imagePos: "50% 18%",
     quote: "Every great dream begins with a dreamer. Always remember, you have within you the strength, the patience, and the passion to reach for the stars to change the world.",
     bio: "Harriet Tubman embodied courage and integrity as a conductor on the Underground Railroad, risking her life repeatedly to guide over 70 enslaved people to freedom. Her unwavering commitment to liberation and her strategic brilliance made her a legendary figure in the fight against oppression. She demonstrated that true leadership often requires personal sacrifice for the flourishing of others.",
     values: ["Integrity", "Flourishing", "Equity"]
@@ -36,9 +38,10 @@ const leaders = [
     name: "Martin Luther King Jr.",
     title: "Architect of the Beloved Community",
     highlight: "The Beloved Community",
-    image: "/leaders/king.jpg",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Martin%20Luther%20King%20Jr%20NYWTS.jpg?width=800",
+    imagePos: "50% 22%",
     quote: "Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that.",
-    bio: "Dr. Martin Luther King Jr. articulated a vision of the Beloved Communityâa society based on justice, equal opportunity, and love of one's fellow human beings. His commitment to nonviolent resistance and his ability to inspire millions through transparent moral leadership transformed the civil rights movement and continues to influence leaders worldwide.",
+    bio: "Dr. Martin Luther King Jr. articulated a vision of the Beloved Community—a society based on justice, equal opportunity, and love of one's fellow human beings. His commitment to nonviolent resistance and his ability to inspire millions through transparent moral leadership transformed the civil rights movement and continues to influence leaders worldwide.",
     values: ["Nonviolence", "Transparency", "Empathy"]
   }
 ]
@@ -55,9 +58,16 @@ function LeaderCard({ leader, index }: { leader: typeof leaders[0]; index: numbe
       <Dialog>
         <DialogTrigger asChild>
           <div className="glass rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
-            <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-primary/10 group-hover:bg-primary/5 transition-colors" />
-              <span className="font-serif text-6xl font-bold text-primary/30">{leader.name.charAt(0)}</span>
+            <div className="h-48 relative overflow-hidden bg-secondary">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={leader.image}
+                alt={`Portrait of ${leader.name}`}
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                style={{ objectPosition: leader.imagePos }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
             </div>
             <div className="p-6">
               <span className="text-accent text-sm font-medium">{leader.highlight}</span>
@@ -159,6 +169,13 @@ export function LeadersCarousel() {
           </div>
         ))}
         <div className="flex-shrink-0 w-6" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 mt-8">
+        <p className="text-xs text-muted-foreground/70 leading-relaxed">
+          Photographs: Harriet Tubman (c.1868) and Martin Luther King Jr. (New York World-Telegram &amp; Sun collection, Library of Congress) are in the public domain. Nelson Mandela (1994) © John Mathew Smith, licensed under{" "}
+          <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">CC BY-SA 2.0</a>.
+        </p>
       </div>
     </section>
   )
