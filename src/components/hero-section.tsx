@@ -10,6 +10,7 @@ const panels = [
   { id: "gqzWk5ngnxs", date: "April 23, 2026", theme: "Benevolence, Equity & Nonviolence" },
   { id: "gbggW5lLLgU", date: "June 11, 2026", theme: "Equity & Flourishing" },
   { id: "tF9CN3VO_f4", date: "July 9, 2026", theme: "Integrity & Transparency" },
+  { id: "qtelmoN9MQY", date: "November 5, 2026", theme: "Meet the Authors: Ethical Leadership for a Fraying World" },
 ]
 
 export function HeroSection() {
